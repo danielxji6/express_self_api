@@ -14,10 +14,8 @@ $(document).ready(function(){
   var render = function() {
     // empty existing todos from view
     $booksList.empty();
-
     // pass `allTodos` into the template function
     var booksHtml = template({ books: allBooks });
-
     // append html to the view
     $booksList.append(booksHtml);
   };
@@ -41,7 +39,7 @@ $(document).ready(function(){
       '<div class="text-justify">' +
         '<p><img src="'+data.image+'">'+data.temp+' F</p>'
     );
-    console.log(html);
+    // console.log(html);
     $profile.append(html);
   });
 

@@ -3,7 +3,10 @@ var express = require('express'),
     app = express(),
     bodyParser = require('body-parser'),
     cookieParser = require('cookie-parser'),
-    request = require('request');
+    request = require('request'),
+    mongoose = require('mongoose'),
+    db = require('./models');
+    console.log(db.Book);
 
 
 // configure bodyParser (for receiving form data)
@@ -23,43 +26,6 @@ app.use(function(req, res, next) {
  * DATABASE *
  ************/
 
-var profile = {
-  firstName: "Daniel",
-  lastName: "Lwo",
-  birthday: new Date("1991-01-16"),
-  github_link: "https://github.com/phnxdaniel",
-  github_profile_image: "https://avatars3.githubusercontent.com/u/10553764?v=3&s=460",
-  current_city: "San Francisco, CA",
-  is_awake: true
-};
-
-var books = [
-  {
-    _id: 1,
-    title: "Zero to One",
-    author: "Peter Thiel, Blake Masters",
-    image: "http://t1.gstatic.com/images?q=tbn:ANd9GcTI_ooZzjy49uuu0Shtt6mOlIxLIEZ4Qd5DRJgS7z9asXEoHP5J",
-    releaseDate: new Date("2014-09-16"),
-    status: "done"
-  },
-  {
-    _id: 2,
-    title: "The Giver",
-    author: "Lois Lowry",
-    image: "https://upload.wikimedia.org/wikipedia/en/7/7b/The_Giver_first_edition_1993.jpg",
-    releaseDate: new Date("1993"),
-    status: "done"
-  },
-  {
-    _id: 3,
-    title: "The Firm",
-    author: "John Grisham",
-    image: "http://www.gstatic.com/tv/thumb/movieposters/14877/p14877_p_v7_aa.jpg",
-    releaseDate: new Date("1991-02-01"),
-    status: "reading"
-  },
-];
-
 // Set the weather
 var localTemp = {
   url: "http://api.wunderground.com/api/9f5993d669b60ea5/conditions/q/CA/San_Francisco.json",
@@ -67,19 +33,20 @@ var localTemp = {
   temp: 0,
   image: "",
 };
-function getTemp() {
-  request(localTemp.url, function (error, response, body) {
-    if (!error && response.statusCode == 200) {
-      var weather = JSON.parse(body);
-      // console.log(weather);
-      localTemp.temp = weather.current_observation.temp_f;
-      localTemp.image = weather.current_observation.icon_url;
-    }
-  console.log("Weather: " +localTemp.temp);
-  });
-  setTimeout(getTemp, 10*60*1000);
-}
-getTemp();
+// function getTemp() {
+//   request(localTemp.url, function (error, response, body) {
+//     if (!error && response.statusCode == 200) {
+//       var weather = JSON.parse(body);
+//       // console.log(weather);
+//       localTemp.temp = weather.current_observation.temp_f;
+//       localTemp.image = weather.current_observation.icon_url;
+//     }
+//   console.log("Weather: " +localTemp.temp);
+//   });
+//   setTimeout(getTemp, 10*60*1000);
+// }
+// getTemp();
+
 
 /**********
  * ROUTES *
@@ -109,13 +76,16 @@ app.get('/api', function api_index (req, res){
 });
 
 app.get('/api/profile', function api_profile (req, res) {
-  var now = new Date().getUTCHours();
-  if(now > 7 && now < 16) {
-    profile.is_awake = false;
-  } else {
-    profile.is_awake = true;
-  }
-  res.json(profile);
+  // var now = new Date().getUTCHours();
+  // if(now > 7 && now < 16) {
+  //   profile.is_awake = false;
+  // } else {
+  //   profile.is_awake = true;
+  // }
+  db.Profile.find({}, function (err, profile) {
+    if(err) { return console.log("Error: ", err);}
+    res.json(profile);
+  });
 });
 
 app.get('/api/days_old', function api_days_old(req, res) {
